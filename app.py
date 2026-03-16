@@ -310,9 +310,7 @@ def estimate_final_costs(chargeable_weight, baf_pct, country):
     })
     
     return total, breakdown
-
-# --- VISUALIZZAZIONE MAIN PAGE: COSTI ---
-st.header("💰 Analisi Costi e Riepilogo Finale")
+    
 
 # 1. Ricalcolo preciso del peso volumetrico (1:6000)
 # Nota: Usiamo float() per sicurezza se gli input arrivano da widget numerici
