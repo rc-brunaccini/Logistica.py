@@ -22,11 +22,12 @@ st.sidebar.header("Configurazione Spedizione")
 # Dati Spedizione
 with st.sidebar.form(key="logistics_form"):
     st.subheader("📍 Percorso")
-    origin_city = st.sidebar.text_input("Città di Partenza")
-    dest_city = st.sidebar.text_input("Città di Destinazione")
-    dest_state = st.sidebar.selectbox("Stato di arrivo (per War Risk)", 
+    origin_city = st.text_input("Città di Partenza")
+    dest_city = st.text_input("Città di Destinazione")
+    dest_state = st.selectbox("Stato di arrivo (per War Risk)", 
                                  ["Ucraina", "Iran","Israele", "Siria", "Yemen", "Iraq", "Libano", "Giordania", "Sudan","altro"])
-
+    
+submit_button = st.form_submit_button(label="Calcola Rotta")
 st.sidebar.markdown("---")
 
 # Dati Merce
