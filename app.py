@@ -120,21 +120,20 @@ if st.button("Calcola War Risk e Quotazione"):
 @st.cache_data(ttl=3600) # Cache di 1 ora per non sovraccaricare le API e velocizzare l'app
 def get_market_intelligence():
     try:
-        # Ticker per il Brent Crude Oil (Riferimento per carburante avio)
-        ticker = "BZ=F" 
-        data = yf.download(ticker, period="2d", interval="1d", progress=False)
-      
-            
-            # Calcolo BAF (Fuel Surcharge) - Logica aziendale simulata
-            # Esempio: Se il petrolio è > 80$, BAF è 15%, altrimenti 12%
-            baf_index = 15.5 if current_price > 80 else 12.0
-            
-            return round(float(current_price), 2), round(float(delta), 2), baf_index
-        else:
-            return 0.0, 0.0, 0.0
-    except Exception as e:
-        st.error(f"Errore nel recupero dati finanziari: {e}")
-        return 85.0, 0.5, 15.0 # Valori fallback in caso di errore API
+        # Scarichiamo solo l'ultimo prezzo disponibile
+        data = yf.download("BZ=F", period="1d", progress=False)
+        
+        # Estraiamo il prezzo (gestendo il nuovo formato di yfinance)
+        # .iloc[-1] prende l'ultima riga, .values[0] evita errori di formato
+        current_price = float(data['Close'].iloc[-1].values[0])
+        
+        # Logica BAF rapida
+        baf_index = 15.5 if current_price > 80 else 12.0
+        
+        return round(current_price, 2), baf_index
+    except:
+        # Se Yahoo fa i capricci, spariamo un prezzo fisso per non bloccare l'app
+        return 85.0, 15.0
 
 # --- HEADER: DATI LIVE ---
 st.markdown("### 📊 Market Intelligence & Fuel Analysis")
