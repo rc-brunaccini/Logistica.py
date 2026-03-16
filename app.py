@@ -38,7 +38,7 @@ with st.sidebar.form(key="global_shipping_form"):
     
     st.divider()
     st.subheader("⚙️ Parametri & Date")
-    service_type = st.selectbox("Servizio", ["IATA Standard (1:5000)", "Express Courier (1:6000)", "Custom"])
+    service_type = st.selectbox("Servizio", ["IATA Standard (1:5000)", "Express Courier (1:6000)"])
     
     departure_date = st.date_input("Data Decollo", value=datetime.now())
     departure_time = st.time_input("Ora Decollo", value=datetime.now().time())
