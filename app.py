@@ -20,7 +20,7 @@ st.title("✈️ Calcolo e Gestione Spedizioni")
 st.sidebar.header("Configurazione Spedizione")
 
 # Dati Spedizione
-with st.sidebar.form(key="logistics_form"):
+with st.sidebar.form(key="città"):
     st.subheader("📍 Percorso")
     origin_city = st.text_input("Città di Partenza")
     dest_city = st.text_input("Città di Destinazione")
@@ -31,18 +31,20 @@ with st.sidebar.form(key="logistics_form"):
 st.sidebar.markdown("---")
 
 # Dati Merce
-st.sidebar.subheader("📦 Dati Merce")
-real_weight = st.sidebar.number_input("Peso Reale (kg)", min_value=0.0, step=0.1)
+with st.sidebar.form(key="merce"):
+    st.subheader("📦 Dati Merce")
+    real_weight = st.number_input("Peso Reale (kg)", min_value=0.0, step=0.1)
 
-col1, col2, col3 = st.sidebar.columns(3)
-with col1:
-    length = st.number_input("L (cm)", min_value=0)
-with col2:
-    width = st.number_input("W (cm)", min_value=0)
-with col3:
-    height = st.number_input("H (cm)", min_value=0)
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        length = st.number_input("L (cm)", min_value=0)
+    with col2:
+        width = st.number_input("W (cm)", min_value=0)
+    with col3:
+        height = st.number_input("H (cm)", min_value=0)
 
-num_pieces = st.sidebar.number_input("Numero Pezzi", min_value=1, step=1)
+    num_pieces = st.number_input("Numero Pezzi", min_value=1, step=1)
+    submit_button = st.form_submit_button(label="Calcola Dati Merce")
 
 # decidi la IATA applicata 
 
