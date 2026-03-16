@@ -314,7 +314,7 @@ def estimate_final_costs(chargeable_weight, baf_pct, country):
 
 # 1. Ricalcolo preciso del peso volumetrico (1:6000)
 # Nota: Usiamo float() per sicurezza se gli input arrivano da widget numerici
-vol_weight = (float(length) * float(width) * float(height)) / 6000 * int(num_pieces)
+vol_weight = (float(length) * float(width) * float(height)) / dim_divisor * int(num_pieces)
 
 # 2. Applichiamo la funzione corretta con arrotondamento IATA (0.5 kg)
 chargeable_w = calculate_chargeable_weight(real_weight, vol_weight)
