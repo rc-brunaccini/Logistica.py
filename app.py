@@ -215,7 +215,7 @@ if origin_city and dest_city:
         st.divider()
         
         # Creiamo le due colonne
-        col_sinistra, col_destra = st.columns([1, 1]) # [1, 1] assicura metà e metà
+        col_sinistra, col_destra = st.columns([1, 1.5]) 
 
         with col_sinistra:
             st.metric("Distanza Geodetica", f"{dist_km} km")
@@ -332,7 +332,7 @@ tariffe_test = np.linspace(prezzo_break_even * 0.5, prezzo_break_even * 2, 50)
 ricavi = tariffe_test * real_weight
 costi_fissi = np.full(len(tariffe_test), total_est)
 
-col_res1, col_res2, col_res3 = st.columns([0.6, 1.2,1]) # Bilanciamo le larghezze
+col_res1, col_res2, col_res3 = st.columns([0.5, 1.4, 1.4]) # Bilanciamo le larghezze
 
 with col_res1:
     st.subheader("⚖️ Analisi Peso")
