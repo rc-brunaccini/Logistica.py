@@ -94,8 +94,6 @@ if service_type == "IATA Standard (1:5000)":
     dim_divisor = 5000
 elif service_type == "Express Courier (1:6000)":
     dim_divisor = 6000
-else:
-    dim_divisor = custom_div
 
 
 # --- CORPO PRINCIPALE: RIEPILOGO ---
