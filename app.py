@@ -478,64 +478,105 @@ except Exception as e:
 
 # generazione pdf 
 
-# --- FUNZIONE GENERAZIONE PDF (VERSIONE DEFINITIVA) ---
-def generate_pdf(df_costs, total_est, origin, dest, weight_data, sla_data):
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font("Arial", "B", 16)
-    
-    # Intestazione
-    pdf.cell(190, 10, "Preventivo Spedizione Aerea", ln=True, align='C')
-    pdf.ln(10)
-    
-    # 1. Dettagli Percorso
-    pdf.set_font("Arial", "B", 12)
-    pdf.cell(190, 10, "1. Dettagli Percorso", ln=True)
-    pdf.set_font("Arial", "", 10)
-    pdf.cell(190, 7, f"Da: {origin}", ln=True)
-    pdf.cell(190, 7, f"A: {dest}", ln=True)
-    pdf.ln(5)
-    
-    # 2. Analisi Pesi
-    pdf.set_font("Arial", "B", 12)
-    pdf.cell(190, 10, "2. Analisi Pesi", ln=True)
-    pdf.set_font("Arial", "", 10)
-    pdf.cell(190, 7, f"Peso Reale: {weight_data['real']:.2f} kg", ln=True)
-    pdf.cell(190, 7, f"Peso Volumetrico: {weight_data['vol']:.2f} kg", ln=True)
-    pdf.cell(190, 7, f"Peso Tassabile (IATA): {weight_data['chargeable']:.2f} kg", ln=True)
-    pdf.ln(5)
-    
-    # 3. Breakdown Costi
-    pdf.set_font("Arial", "B", 12)
-    pdf.cell(190, 10, "3. Breakdown Costi", ln=True)
-    pdf.set_font("Arial", "B", 10)
-    pdf.cell(120, 8, "Voce di Costo", 1)
-    pdf.cell(70, 8, "Importo ($)", 1, ln=True)
-    
-    pdf.set_font("Arial", "", 10)
-    for index, row in df_costs.iterrows():
-        pdf.cell(120, 8, str(row['Voce di Costo']), 1)
-        pdf.cell(70, 8, f"{row['Importo ($)']:,.2f}", 1, ln=True)
-    
-    pdf.set_font("Arial", "B", 12)
-    pdf.cell(120, 10, "TOTALE STIMATO", 1)
-    pdf.cell(70, 10, f"$ {total_est:,.2f}", 1, ln=True)
-    pdf.ln(5)
-    
-    # 4. SLA Logistica
-    pdf.set_font("Arial", "B", 12)
-    pdf.cell(190, 10, "4. Tempistiche Operative (SLA)", ln=True)
-    pdf.set_font("Arial", "", 10)
-    pdf.cell(190, 7, f"Cut-off (Consegna entro): {sla_data['cutoff']}", ln=True)
-    pdf.cell(190, 7, f"Svincolo (Disponibile dal): {sla_data['pickup']}", ln=True)
-    
-    # ESTRAZIONE BINARIA PULITA
-    # Usiamo 'S' e poi forziamo la conversione in bytes standard
-    pdf_out = pdf.output(dest='S')
-    if isinstance(pdf_out, str):
-        return bytes(pdf_out, 'latin-1')
-    return bytes(pdf_out) # Se è bytearray, lo trasforma in bytes puri
+def generate_pdf(df_costs, total_est, origin, dest, weight_data, sla_data, baf_val, dest_state):
+    class PDF(FPDF):
+        def header(self):
+            # Fascia blu in alto
+            self.set_fill_color(44, 62, 80) # Blu scuro professionale
+            self.rect(0, 0, 210, 40, 'F')
+            self.set_text_color(255, 255, 255)
+            self.set_font("Arial", "B", 20)
+            self.cell(0, 20, "AIR FREIGHT QUOTATION", ln=True, align='C')
+            self.set_font("Arial", "", 10)
+            self.cell(0, -5, f"Data documento: {datetime.now().strftime('%d/%m/%Y %H:%M')}", ln=True, align='C')
+            self.ln(20)
 
+        def footer(self):
+            self.set_y(-25)
+            self.set_font("Arial", "I", 8)
+            self.set_text_color(128, 128, 128)
+            self.cell(0, 10, "Documento generato da Logistics BI Tool - Brunaccini Riccardo", 0, 0, 'L')
+            self.cell(0, 10, f"Pagina {self.page_no()}", 0, 0, 'R')
+
+    pdf = PDF()
+    pdf.add_page()
+    pdf.set_auto_page_break(auto=True, margin=15)
+    
+    # --- 1. DETTAGLI SPEDIZIONE ---
+    pdf.set_y(50)
+    pdf.set_text_color(44, 62, 80)
+    pdf.set_font("Arial", "B", 12)
+    pdf.cell(0, 10, "1. DETTAGLI TRATTA E CARICO", ln=True)
+    pdf.line(10, pdf.get_y(), 200, pdf.get_y()) # Linea divisoria
+    pdf.ln(2)
+
+    pdf.set_font("Arial", "", 10)
+    pdf.set_text_color(0, 0, 0)
+    
+    # Tabella info base
+    col_width = 95
+    pdf.cell(col_width, 7, f"Partenza: {origin}", 0)
+    pdf.cell(col_width, 7, f"Destinazione: {dest} ({dest_state})", 0, ln=True)
+    pdf.cell(col_width, 7, f"Peso Reale: {weight_data['real']} kg", 0)
+    pdf.cell(col_width, 7, f"Peso Tassabile: {weight_data['chargeable']} kg", 0, ln=True)
+    pdf.ln(5)
+
+    # --- 2. BREAKDOWN COSTI (TABELLA STYLE) ---
+    pdf.set_text_color(44, 62, 80)
+    pdf.set_font("Arial", "B", 12)
+    pdf.cell(0, 10, "2. ANALISI ECONOMICA", ln=True)
+    pdf.set_font("Arial", "B", 10)
+    
+    # Header Tabella
+    pdf.set_fill_color(240, 240, 240)
+    pdf.cell(130, 10, " Descrizione Voce", 0, 0, 'L', fill=True)
+    pdf.cell(60, 10, "Importo ($) ", 0, 1, 'R', fill=True)
+    
+    pdf.set_font("Arial", "", 10)
+    pdf.set_text_color(0, 0, 0)
+    
+    for index, row in df_costs.iterrows():
+        # Riga alternata grigio chiaro per leggibilità
+        fill = True if index % 2 == 0 else False
+        if fill: pdf.set_fill_color(248, 249, 250)
+        pdf.cell(130, 8, f" {row['Voce di Costo']}", 0, 0, 'L', fill=fill)
+        pdf.cell(60, 8, f"{row['Importo ($)']:,.2f}  ", 0, 1, 'R', fill=fill)
+
+    # Totale evidenziato
+    pdf.ln(2)
+    pdf.set_fill_color(44, 62, 80)
+    pdf.set_text_color(255, 255, 255)
+    pdf.set_font("Arial", "B", 12)
+    pdf.cell(130, 12, " TOTALE STIMATO (USD)", 0, 0, 'L', fill=True)
+    pdf.cell(60, 12, f"$ {total_est:,.2f}  ", 0, 1, 'R', fill=True)
+    
+    # --- 3. SLA & LOGISTICA ---
+    pdf.ln(10)
+    pdf.set_text_color(44, 62, 80)
+    pdf.set_font("Arial", "B", 12)
+    pdf.cell(0, 10, "3. TEMPISTICHE OPERATIVE (SLA)", ln=True)
+    pdf.set_font("Arial", "", 10)
+    pdf.set_text_color(0, 0, 0)
+    
+    # Box per SLA
+    pdf.set_fill_color(232, 244, 253)
+    pdf.rect(10, pdf.get_y(), 190, 25, 'F')
+    pdf.set_y(pdf.get_y() + 5)
+    pdf.cell(10) # Indentazione
+    pdf.cell(0, 7, f"LATEST DELIVERY (Cut-off): {sla_data['cutoff']}", ln=True)
+    pdf.cell(10)
+    pdf.cell(0, 7, f"ESTIMATED AVAILABILITY (Pickup): {sla_data['pickup']}", ln=True)
+
+    # --- NOTE FINALI ---
+    pdf.ln(15)
+    pdf.set_font("Arial", "I", 9)
+    pdf.set_text_color(100, 100, 100)
+    disclaimer = f"Nota: La quotazione include Fuel Surcharge ({baf_val}%) e War Risk surcharge. Prezzi soggetti a verifica disponibilità voli."
+    pdf.multi_cell(0, 5, disclaimer)
+
+    # Output
+    pdf_out = pdf.output(dest='S')
+    return bytes(pdf_out, 'latin-1') if isinstance(pdf_out, str) else bytes(pdf_out)
 # --- TASTO DI DOWNLOAD ---
 st.divider()
 st.subheader("🖨️ Esporta Documentazione")
