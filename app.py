@@ -82,7 +82,7 @@ else:
         st.info(f"**Tratta:** {origin_city} ➔ {dest_city}")
         st.write(f"**Stato Destinazione:** {dest_state}")
         st.write(f"**Partenza:** {departure_date} alle {departure_time}")
-         st.write(f"**Arrivo:** {arrival_date} alle {arrival_time}")
+        st.write(f"**Arrivo:** {arrival_date} alle {arrival_time}")
 
     with col_main2:
             # Esempio di calcolo logistico (Peso Volumetrico standard 1:6000)
