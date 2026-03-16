@@ -33,7 +33,7 @@ if not st.session_state.form_submitted:
     *Compila i dati a sinistra e clicca su **Elabora Quotazione** per iniziare.*
     """)
     st.info("💡 Suggerimento: Assicurati di inserire correttamente le dimensioni per il calcolo del peso volumetrico IATA.")
-
+    st.stop()  # <--- FONDAMENTALE: Ferma l'esecuzione qui finché non premi il tasto!
 
 # --- SIDEBAR UNIFICATA ---
 st.sidebar.header("✈️ Configurazione Spedizione")
