@@ -500,5 +500,80 @@ try:
 except Exception as e:
     st.error(f"Errore: {e}")
 
+import plotly.graph_objects as go
+import numpy as np
+
+# --- VISUALIZZAZIONE MAIN PAGE: ANALISI PRO ---
+st.header("💰 Analisi Costi Avanzata")
+
+col_res1, col_res2 = st.columns(2)
+
+with col_res1:
+    st.subheader("⚖️ Analisi Peso")
+    st.write(f"Peso Reale: **{real_weight:.2f} kg**")
+    st.write(f"Peso Volumetrico: **{vol_weight:.2f} kg**")
+    st.info(f"**Peso Tassabile (IATA): {chargeable_w:.2f} kg**")
+    
+    # --- AGGIUNTA: ANALISI BREAK-EVEN ---
+    st.subheader("📈 Break-even Analysis")
+    # Simuliamo tariffe di vendita al kg per vedere dove copriamo i costi
+    prezzo_min_vendita = total_est / real_weight if real_weight > 0 else 0
+    tariffe_test = np.linspace(prezzo_min_vendita * 0.5, prezzo_min_vendita * 2, 20)
+    ricavi = tariffe_test * real_weight
+    
+    fig_be = go.Figure()
+    # Linea del ricavo
+    fig_be.add_trace(go.Scatter(x=tariffe_test, y=ricavi, name='Ricavo (Vendita)', line=dict(color='#00CC96', width=3)))
+    # Linea del costo totale (costante rispetto al prezzo di vendita)
+    fig_be.add_trace(go.Scatter(x=tariffe_test, y=[total_est]*20, name='Costo Totale Spedizione', line=dict(color='#EF553B', dash='dash')))
+    
+    fig_be.update_layout(
+        height=300, margin=dict(l=0, r=0, t=30, b=0),
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        xaxis_title="Prezzo di vendita al kg ($)",
+        yaxis_title="Totale ($)"
+    )
+    st.plotly_chart(fig_be, use_container_width=True)
+
+with col_res2:
+    st.subheader("📊 Waterfall Cost Breakdown")
+    
+    # Preparazione dati per il Waterfall usando il tuo df_costs
+    nomi_voci = list(df_costs["Voce di Costo"])
+    valori_voci = list(df_costs["Importo ($)"])
+    
+    fig_wf = go.Figure(go.Waterfall(
+        name = "Costi", 
+        orientation = "v",
+        measure = ["relative"] * len(valori_voci) + ["total"],
+        x = nomi_voci + ["TOTALE"],
+        textposition = "outside",
+        text = [f"${x}" for x in valori_voci] + [f"${total_est:.2f}"],
+        y = valori_voci + [0], 
+        connector = {"line":{"color":"#636363"}},
+        increasing = {"marker":{"color": "#EF553B"}}, # Rosso per i costi
+        totals = {"marker":{"color": "#19d3f3"}}      # Blu/Azzurro per il totale finale
+    ))
+
+    fig_wf.update_layout(
+        height=450,
+        margin=dict(l=20, r=20, t=30, b=20),
+        showlegend = False
+    )
+    st.plotly_chart(fig_wf, use_container_width=True)
+
+# Tabella dettagliata rimane sotto per precisione
+st.subheader("📋 Breakdown Preventivo")
+st.dataframe(df_costs, use_container_width=True, hide_index=True)
+
+# Banner Finale migliorato
+costo_al_kg = total_est / real_weight if real_weight > 0 else 0
+st.success(f"""
+### **TOTALE STIMATO SPEDIZIONE: $ {total_est:,.2f}**
+---
+* **Punto di Pareggio:** Devi vendere a più di **$ {costo_al_kg:.2f}/kg** per generare profitto.
+* **Peso Tassabile applicato:** {chargeable_w:.2f} kg
+""")
+
 
 st.write("Developed by Brunaccini Riccardo")
