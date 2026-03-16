@@ -138,7 +138,7 @@ def get_market_intelligence():
 # --- HEADER: DATI LIVE ---
 st.markdown("### 📊 Market Intelligence & Fuel Analysis")
 
-jet_price, jet_delta, baf_value = get_market_intelligence()
+jet_price, baf_value = get_market_intelligence()
 
 # Layout a 3 colonne per un look da Bloomberg Terminal
 m_col1, m_col2, m_col3 = st.columns(3)
