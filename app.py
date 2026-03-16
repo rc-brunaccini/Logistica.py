@@ -12,27 +12,28 @@ from fpdf import FPDF
 import io
 
 # %%
-# sidebar per gli input
-st.set_page_config(page_title="Gestione Spedizioni", layout="wide")
-
-st.title("✈️ Calcolo e Gestione Spedizioni")
-
 # --- SIDEBAR: INPUT DATI ---
 st.sidebar.header("Configurazione Spedizione")
 
-# Dati Spedizione
-with st.sidebar.form(key="città"):
+# Inizializzazione session_state per date (mantenuta come nel tuo originale)
+if 'initialized' not in st.session_state:
+    st.session_state.initialized = True
+    st.session_state.dep_dt = datetime.now()
+    st.session_state.arr_dt = datetime.now() + timedelta(hours=12)
+
+# UNICO FORM PER TUTTI I DATI
+with st.sidebar.form(key="global_shipping_form"):
+    
+    # 1. Dati Spedizione
     st.subheader("📍 Percorso")
     origin_city = st.text_input("Città di Partenza")
     dest_city = st.text_input("Città di Destinazione")
     dest_state = st.selectbox("Stato di arrivo (per War Risk)", 
                                  ["Ucraina", "Iran","Israele", "Siria", "Yemen", "Iraq", "Libano", "Giordania", "Sudan","altro"])
     
-    submit_button = st.form_submit_button(label="Calcola Rotta")
-st.sidebar.markdown("---")
+    st.markdown("---")
 
-# Dati Merce
-with st.sidebar.form(key="merce"):
+    # 2. Dati Merce
     st.subheader("📦 Dati Merce")
     real_weight = st.number_input("Peso Reale (kg)", min_value=0.0, step=0.1)
 
@@ -45,59 +46,42 @@ with st.sidebar.form(key="merce"):
         height = st.number_input("H (cm)", min_value=0)
 
     num_pieces = st.number_input("Numero Pezzi", min_value=1, step=1)
-    submit_button = st.form_submit_button(label="Calcola Dati Merce")
 
-# decidi la IATA applicata 
+    st.markdown("---")
 
-st.sidebar.subheader("⚙️ Parametri Tariffari")
-service_type = st.sidebar.selectbox(
-    "Tipo di Servizio",
-    ["IATA Standard (1:5000)", "Express Courier (1:6000)", "Custom"]
-)
+    # 3. Parametri Tariffari (Spostati dentro il form)
+    st.subheader("⚙️ Parametri Tariffari")
+    service_type = st.selectbox(
+        "Tipo di Servizio",
+        ["IATA Standard (1:5000)", "Express Courier (1:6000)", "Custom"]
+    )
+    
+    # Per il divisore custom nel form usiamo un numero fisso o lo definiamo fuori
+    custom_div = st.number_input("Eventuale Divisore Custom (se selezionato sopra)", value=5000)
 
-# Impostazione dinamica del divisore
+    st.markdown("---")
+
+    # 4. Dati Orari e Data
+    st.subheader("🕒 Operazioni Volo")
+    departure_date = st.date_input("Data di Decollo", value=st.session_state.dep_dt.date())
+    departure_time = st.time_input("Ora di Decollo", value=st.session_state.dep_dt.time())
+    
+    st.markdown("---")
+    
+    arrival_date = st.date_input("Data di Atterraggio", value=st.session_state.arr_dt.date())
+    arrival_time = st.time_input("Ora di Atterraggio", value=st.session_state.arr_dt.time())
+
+    # UNICO BOTTONE DI INVIO
+    submit_button = st.form_submit_button(label="🚀 ELABORA QUOTAZIONE")
+
+# --- LOGICA FUORI DAL FORM ---
+# Impostazione dinamica del divisore basata sulla scelta nel form
 if service_type == "IATA Standard (1:5000)":
     dim_divisor = 5000
 elif service_type == "Express Courier (1:6000)":
     dim_divisor = 6000
 else:
-    dim_divisor = st.sidebar.number_input("Inserisci Divisore Custom", value=5000)
-
-st.sidebar.markdown("---")
-
-# Dati Orari e Data
-
-# Questo blocco serve a definire i valori iniziali che NON cambieranno più da soli
-if 'initialized' not in st.session_state:
-    st.session_state.initialized = True
-    st.session_state.dep_dt = datetime.now()
-    st.session_state.arr_dt = datetime.now() + timedelta(hours=12)
-
-with st.sidebar.form(key="Date"):
-    st.subheader("🕒 Operazioni Volo")
-
-    departure_date = st.date_input(
-    "Data di Decollo", 
-    value=st.session_state.dep_dt.date()
-)
-    departure_time = st.time_input(
-    "Ora di Decollo", 
-    value=st.session_state.dep_dt.time()
-)
-
-    st.sidebar.markdown("---")
-    
-
-# ATTERRAGGIO
-    arrival_date = st.date_input(
-    "Data di Atterraggio", 
-    value=st.session_state.arr_dt.date()
-)
-    arrival_time = st.time_input(
-    "Ora di Atterraggio", 
-    value=st.session_state.arr_dt.time()
-)
-    submit_button = st.form_submit_button(label="Calcola Data e Ora")
+    dim_divisor = custom_div
 
 
 # --- CORPO PRINCIPALE: RIEPILOGO ---
