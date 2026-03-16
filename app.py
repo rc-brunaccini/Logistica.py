@@ -12,6 +12,24 @@ from fpdf import FPDF
 import io
 
 # %%
+
+if not submit_button:
+    # --- SCHERMATA DI BENVENUTO (A DESTRA) ---
+    st.title("👋 Benvenuto nel Logistics BI Tool")
+    st.info("Configura i parametri della spedizione nella barra a sinistra e clicca su **ELABORA QUOTAZIONE** per visualizzare l'analisi completa.")
+    
+    # Puoi aggiungere un'immagine o dei placeholder estetici
+    st.markdown("""
+    ### Cosa troverai in questo report:
+    * 🌍 **Mappa Geodetica:** Visualizzazione 3D della rotta.
+    * 💸 **Analisi Costi:** Breakdown dettagliato del nolo e delle surcharges.
+    * 📊 **Business Intelligence:** Impatto economico per kg e Waterfall chart.
+    * 🕒 **SLA Operativi:** Calcolo dei cut-off aeroportuali.
+    """)
+    
+    # Questo ferma l'esecuzione del resto del codice (i calcoli) finché non premi il tasto
+    st.stop()
+
 # --- SIDEBAR: INPUT DATI ---
 st.sidebar.header("Configurazione Spedizione")
 
