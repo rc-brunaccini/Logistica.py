@@ -33,7 +33,7 @@ if not st.session_state.form_submitted:
     *Compila i dati a sinistra e clicca su **Elabora Quotazione** per iniziare.*
     """)
     st.info("💡 Suggerimento: Assicurati di inserire correttamente le dimensioni per il calcolo del peso volumetrico IATA.")
-    st.stop()  # <--- FONDAMENTALE: Ferma l'esecuzione qui finché non premi il tasto!
+
 
 # --- SIDEBAR UNIFICATA ---
 st.sidebar.header("✈️ Configurazione Spedizione")
@@ -78,6 +78,14 @@ if submit_button:
     st.session_state.form_submitted = True
     # Da qui in poi scatta tutta la tua logica di calcolo e visualizzazione
 
+# PARACADUTE
+
+# Se queste variabili non esistono ancora, le creiamo "vuote"
+if 'length' not in locals(): length = 0
+if 'width' not in locals(): width = 0
+if 'height' not in locals(): height = 0
+if 'num_pieces' not in locals(): num_pieces = 0
+if 'dim_divisor' not in locals(): dim_divisor = 5000 # Valore standard IATA
 
 # --- CORPO PRINCIPALE: RIEPILOGO ---
 st.header("Riepilogo Dati Inseriti")
