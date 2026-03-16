@@ -1,6 +1,7 @@
 streamlit
 yfinance
 pandas
+numpy
 geopy
 plotly
-fpdf
+fpdf2
