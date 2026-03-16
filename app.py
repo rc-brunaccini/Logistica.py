@@ -72,20 +72,20 @@ if 'initialized' not in st.session_state:
     st.session_state.dep_dt = datetime.now()
     st.session_state.arr_dt = datetime.now() + timedelta(hours=12)
 
-st.sidebar.subheader("🕒 Operazioni Volo")
+with st.sidebar.form(key="Date"):
+    st.subheader("🕒 Operazioni Volo")
 
-# DECOLLO
-# Usiamo i valori salvati nel session_state, così non si resettano
-departure_date = st.sidebar.date_input(
+    departure_date = st.date_input(
     "Data di Decollo", 
     value=st.session_state.dep_dt.date()
 )
-departure_time = st.sidebar.time_input(
+    departure_time = st.time_input(
     "Ora di Decollo", 
     value=st.session_state.dep_dt.time()
 )
 
-st.sidebar.markdown("---")
+    st.sidebar.markdown("---")
+    submit_button = st.form_submit_button(label="Calcola Data e Ora")
 
 # ATTERRAGGIO
 arrival_date = st.sidebar.date_input(
