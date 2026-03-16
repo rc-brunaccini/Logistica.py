@@ -71,15 +71,6 @@ if not submit_button and not st.session_state.form_submitted:
 else:
     # SE IL BOTTONE È PREMUTO, FACCIAMO PARTIRE I CALCOLI
     st.session_state.form_submitted = True
-    
-    # Qui definiamo il divisore PRIMA del calcolo per evitare l'errore di prima
-    if service_type == "IATA Standard (1:5000)":
-        dim_divisor = 5000
-    elif service_type == "Express Courier (1:6000)":
-        dim_divisor = 6000
-    
-    # DA QUI IN POI INCOLLA TUTTO IL RESTO DEL TUO CODICE (Grafici, Mappe, PDF)
-    # RICORDATI: Tutto deve essere indentato (spostato a destra) sotto questo 'else'
     st.success(f"Analisi generata per {origin_city} -> {dest_city}")
 
 # --- CORPO PRINCIPALE: RIEPILOGO ---
