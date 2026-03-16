@@ -27,7 +27,7 @@ with st.sidebar.form(key="logistics_form"):
     dest_state = st.selectbox("Stato di arrivo (per War Risk)", 
                                  ["Ucraina", "Iran","Israele", "Siria", "Yemen", "Iraq", "Libano", "Giordania", "Sudan","altro"])
     
-submit_button = st.form_submit_button(label="Calcola Rotta")
+    submit_button = st.form_submit_button(label="Calcola Rotta")
 st.sidebar.markdown("---")
 
 # Dati Merce
