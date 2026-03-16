@@ -177,7 +177,7 @@ def get_precise_route_data(origin_city, dest_city):
         # Recupero coordinate città di partenza
         loc_origin = geolocator.geocode(origin_city)
         # Piccolo delay per rispettare le policy di Nominatim (1 richiesta al sec)
-        time.sleep(1) 
+        time.sleep(1.2) 
         # Recupero coordinate città di destinazione
         loc_dest = geolocator.geocode(dest_city)
         
