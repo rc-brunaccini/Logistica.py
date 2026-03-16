@@ -77,8 +77,6 @@ else:
         dim_divisor = 5000
     elif service_type == "Express Courier (1:6000)":
         dim_divisor = 6000
-    else:
-        dim_divisor = custom_divisor
     
     # DA QUI IN POI INCOLLA TUTTO IL RESTO DEL TUO CODICE (Grafici, Mappe, PDF)
     # RICORDATI: Tutto deve essere indentato (spostato a destra) sotto questo 'else'
