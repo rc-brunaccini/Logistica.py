@@ -16,7 +16,7 @@ import io
 if 'form_submitted' not in st.session_state:
     st.session_state.form_submitted = False
 
-# --- 2. SIDEBAR UNIFICATA (Tutto dentro il Form per non rompere nulla) ---
+# --- 2. SIDEBAR UNIFICATA ---
 with st.sidebar.form(key="global_shipping_form"):
     st.header("✈️ Configurazione")
     
@@ -30,7 +30,6 @@ with st.sidebar.form(key="global_shipping_form"):
     st.subheader("📦 Merce")
     real_weight = st.number_input("Peso Reale (kg)", min_value=0.0, value=10.0, step=0.1)
     
-    # Dimensioni in riga
     c1, c2, c3 = st.columns(3)
     length = c1.number_input("L (cm)", value=100)
     width = c2.number_input("W (cm)", value=100)
@@ -48,13 +47,12 @@ with st.sidebar.form(key="global_shipping_form"):
     arrival_date = st.date_input("Data Arrivo", value=(datetime.now() + timedelta(hours=12)))
     arrival_time = st.time_input("Ora Arrivo", value=datetime.now().time())
 
-    # L'UNICO BOTTONE CHE COMANDA TUTTO
     submit_button = st.form_submit_button(label="🚀 ELABORA QUOTAZIONE")
 
 # --- 3. LOGICA DEL "VELO" ---
 
 if not submit_button and not st.session_state.form_submitted:
-    # MESSAGGIO DI BENVENUTO (Appare solo all'inizio)
+    # MESSAGGIO DI BENVENUTO
     st.title("🌍 Logistics Business Intelligence Tool")
     st.markdown("""
     ### Benvenuto nel sistema di quotazione professionale.
@@ -69,10 +67,12 @@ if not submit_button and not st.session_state.form_submitted:
     st.info("👈 Inserisci i dati a sinistra per sbloccare l'analisi.")
 
 else:
-    # SE IL BOTTONE È PREMUTO, FACCIAMO PARTIRE I CALCOLI
+    # SE IL BOTTONE È PREMUTO
     st.session_state.form_submitted = True
     st.success(f"Analisi generata per {origin_city} -> {dest_city}")
-
+    
+    # --- DA QUI IN POI INCOLLA I TUOI CALCOLI ORIGINALI ---
+    # Fai attenzione: tutto quello che incolli qui sotto deve essere INDENTATO a destra.
 # --- CORPO PRINCIPALE: RIEPILOGO ---
 st.header("Riepilogo Dati Inseriti")
 
