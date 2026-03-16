@@ -85,17 +85,19 @@ with st.sidebar.form(key="Date"):
 )
 
     st.sidebar.markdown("---")
-    submit_button = st.form_submit_button(label="Calcola Data e Ora")
+    
 
 # ATTERRAGGIO
-arrival_date = st.sidebar.date_input(
+    arrival_date = st.date_input(
     "Data di Atterraggio", 
     value=st.session_state.arr_dt.date()
 )
-arrival_time = st.sidebar.time_input(
+    arrival_time = st.time_input(
     "Ora di Atterraggio", 
     value=st.session_state.arr_dt.time()
 )
+    submit_button = st.form_submit_button(label="Calcola Data e Ora")
+
 
 # --- CORPO PRINCIPALE: RIEPILOGO ---
 st.header("Riepilogo Dati Inseriti")
