@@ -146,11 +146,8 @@ m_col1, m_col2, m_col3 = st.columns(3)
 with m_col1:
     st.metric(
         label="Brent Crude Oil (Ref. Jet Fuel)", 
-        value=f"${jet_price} / Bbl", 
-        delta=f"{jet_delta} USD (24h)",
-        delta_color="normal" # Verde se sale, rosso se scende
-    )
-
+        value=f"${jet_price} / Bbl")
+  
 with m_col2:
     # Mostriamo il BAF
     st.metric(
