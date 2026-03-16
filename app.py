@@ -12,67 +12,77 @@ from fpdf import FPDF
 import io
 
 
-# --- 1. GESTIONE STATO (Per far sparire il benvenuto al click) ---
+# --- 1. GESTIONE STATO ---
 if 'form_submitted' not in st.session_state:
     st.session_state.form_submitted = False
 
-# --- 2. SIDEBAR UNIFICATA (Sempre visibile) ---
-st.sidebar.header("✈️ Configurazione Spedizione")
-
+# --- 2. SIDEBAR UNIFICATA (Tutto dentro il Form per non rompere nulla) ---
 with st.sidebar.form(key="global_shipping_form"):
+    st.header("✈️ Configurazione")
+    
     st.subheader("📍 Tratta")
-    origin_city = st.sidebar.text_input("Città di Partenza", placeholder="es. Milano")
-    dest_city = st.sidebar.text_input("Città di Destinazione", placeholder="es. Tokyo")
-    dest_state = st.sidebar.selectbox("Stato di arrivo (per War Risk)", 
+    origin_city = st.text_input("Città di Partenza", value="Milano")
+    dest_city = st.text_input("Città di Destinazione", value="Tokyo")
+    dest_state = st.selectbox("Stato di arrivo", 
                               ["altro", "Ucraina", "Iran", "Israele", "Siria", "Yemen", "Iraq", "Libano", "Giordania", "Sudan"])
     
     st.divider()
-    st.subheader("📦 Dati Merce")
-    real_weight = st.sidebar.number_input("Peso Reale (kg)", min_value=0.0, step=0.1)
-    c1, c2, c3 = st.sidebar.columns(3)
-    length = c1.number_input("L (cm)", min_value=0)
-    width = c2.number_input("W (cm)", min_value=0)
-    height = c3.number_input("H (cm)", min_value=0)
-    num_pieces = st.sidebar.number_input("Pezzi", min_value=1, step=1)
+    st.subheader("📦 Merce")
+    real_weight = st.number_input("Peso Reale (kg)", min_value=0.0, value=10.0, step=0.1)
     
-    service_type = st.sidebar.selectbox("Tipo di Servizio", ["IATA Standard (1:5000)", "Express Courier (1:6000)", "Custom"])
-    custom_divisor = st.sidebar.number_input("Divisore Custom (se selezionato)", value=5000)
+    # Dimensioni in riga
+    c1, c2, c3 = st.columns(3)
+    length = c1.number_input("L (cm)", value=100)
+    width = c2.number_input("W (cm)", value=100)
+    height = c3.number_input("H (cm)", value=100)
+    num_pieces = st.number_input("Pezzi", min_value=1, value=1)
     
     st.divider()
-    st.subheader("🕒 Operazioni Volo")
-    departure_date = st.sidebar.date_input("Data di Decollo", value=datetime.now())
-    departure_time = st.sidebar.time_input("Ora di Decollo", value=datetime.now().time())
-    arrival_date = st.sidebar.date_input("Data di Atterraggio", value=(datetime.now() + timedelta(hours=12)))
-    arrival_time = st.sidebar.time_input("Ora di Atterraggio", value=datetime.now().time())
+    st.subheader("⚙️ Parametri & Date")
+    service_type = st.selectbox("Servizio", ["IATA Standard (1:5000)", "Express Courier (1:6000)", "Custom"])
+    custom_divisor = st.number_input("Divisore Custom", value=5000)
+    
+    departure_date = st.date_input("Data Decollo", value=datetime.now())
+    departure_time = st.time_input("Ora Decollo", value=datetime.now().time())
+    
+    arrival_date = st.date_input("Data Arrivo", value=(datetime.now() + timedelta(hours=12)))
+    arrival_time = st.time_input("Ora Arrivo", value=datetime.now().time())
 
+    # L'UNICO BOTTONE CHE COMANDA TUTTO
     submit_button = st.form_submit_button(label="🚀 ELABORA QUOTAZIONE")
 
-# --- 3. LOGICA DEL VELO (Visualizzazione condizionale) ---
+# --- 3. LOGICA DEL "VELO" ---
 
 if not submit_button and not st.session_state.form_submitted:
-    # --- QUESTO È IL BENVENUTO ---
+    # MESSAGGIO DI BENVENUTO (Appare solo all'inizio)
+    st.title("🌍 Logistics Business Intelligence Tool")
     st.markdown("""
-    ## 🌍 Logistics Business Intelligence Tool
-    Benvenuto nel sistema avanzato di quotazione e analisi voli. 
-    Usa la barra laterale per configurare i dettagli della spedizione.
+    ### Benvenuto nel sistema di quotazione professionale.
+    Compila i dati nella barra laterale e clicca su **Elabora Quotazione**.
     
-    **Cosa puoi fare:**
-    * 📍 Calcolare rotte geodetiche e visualizzare il globo 3D.
-    * 📊 Analizzare l'impatto dei costi fissi e variabili (BAF/War Risk).
-    * 🕒 Ottenere le finestre operative SLA (Cut-off e Svincolo).
-    * 🖨️ Generare un preventivo professionale in PDF.
-    
-    ---
-    *Compila i dati a sinistra e clicca su **Elabora Quotazione** per iniziare.*
+    **Cosa otterrai:**
+    * 📍 Calcolo rotta e Mappa 3D.
+    * 💰 Breakdown costi (Nolo, BAF, War Risk).
+    * 🕒 Finestre SLA operative.
+    * 🖨️ Export PDF pronto per il cliente.
     """)
-    st.info("💡 Suggerimento: Assicurati di inserire correttamente le dimensioni per il calcolo del peso volumetrico IATA.")
+    st.info("👈 Inserisci i dati a sinistra per sbloccare l'analisi.")
 
 else:
-    # --- QUESTO È IL "VELO" CHE SI APRE ---
-    # Da qui in poi incolla TUTTO il resto del tuo codice (Calcoli, Mappe, Grafici e PDF)
-    # IMPORTANTE: Tutto il codice che incolli qui sotto deve essere INDENTATO di 4 spazi!
-    st.session_state.form_submitted = True 
-
+    # SE IL BOTTONE È PREMUTO, FACCIAMO PARTIRE I CALCOLI
+    st.session_state.form_submitted = True
+    
+    # Qui definiamo il divisore PRIMA del calcolo per evitare l'errore di prima
+    if service_type == "IATA Standard (1:5000)":
+        dim_divisor = 5000
+    elif service_type == "Express Courier (1:6000)":
+        dim_divisor = 6000
+    else:
+        dim_divisor = custom_divisor
+    
+    # DA QUI IN POI INCOLLA TUTTO IL RESTO DEL TUO CODICE (Grafici, Mappe, PDF)
+    # RICORDATI: Tutto deve essere indentato (spostato a destra) sotto questo 'else'
+    st.success(f"Analisi generata per {origin_city} -> {dest_city}")
 
 # --- CORPO PRINCIPALE: RIEPILOGO ---
 st.header("Riepilogo Dati Inseriti")
