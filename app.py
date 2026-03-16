@@ -13,6 +13,8 @@ import io
 
 # %%
 
+submit_button = st.form_submit_button(label="🚀 ELABORA QUOTAZIONE")
+
 if not submit_button:
     # --- SCHERMATA DI BENVENUTO (A DESTRA) ---
     st.title("👋 Benvenuto nel Logistics BI Tool")
@@ -84,9 +86,6 @@ with st.sidebar.form(key="global_shipping_form"):
     
     arrival_date = st.date_input("Data di Atterraggio", value=st.session_state.arr_dt.date())
     arrival_time = st.time_input("Ora di Atterraggio", value=st.session_state.arr_dt.time())
-
-    # UNICO BOTTONE DI INVIO
-    submit_button = st.form_submit_button(label="🚀 ELABORA QUOTAZIONE")
 
 # --- LOGICA FUORI DAL FORM ---
 # Impostazione dinamica del divisore basata sulla scelta nel form
