@@ -136,7 +136,7 @@ def get_market_intelligence():
             
             return round(float(current_price), 2), round(float(delta), 2), baf_index
         else:
-            return 70.0, 0.0, 12.0
+            return 0.0, 0.0, 0.0
     except Exception as e:
         st.error(f"Errore nel recupero dati finanziari: {e}")
         return 85.0, 0.5, 15.0 # Valori fallback in caso di errore API
