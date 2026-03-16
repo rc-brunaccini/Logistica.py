@@ -423,7 +423,6 @@ st.success(f"""
 * 🎯 **Prezzo di Pareggio (Break-even):** $ {prezzo_break_even:.2f} / kg
 * 💡 *Ogni dollaro incassato sopra questa soglia è profitto netto.*
 """)
-    st.plotly_chart(fig, use_container_width=True)
 
 # Tabella dettagliata - Uso st.dataframe per una visualizzazione più moderna rispetto a st.table
 st.subheader("📋 Breakdown Preventivo")
