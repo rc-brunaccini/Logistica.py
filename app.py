@@ -53,12 +53,8 @@ with st.sidebar.form(key="global_shipping_form"):
     st.subheader("⚙️ Parametri Tariffari")
     service_type = st.selectbox(
         "Tipo di Servizio",
-        ["IATA Standard (1:5000)", "Express Courier (1:6000)", "Custom"]
+        ["IATA Standard (1:5000)", "Express Courier (1:6000)"]
     )
-    
-    # Per il divisore custom nel form usiamo un numero fisso o lo definiamo fuori
-    custom_div = st.number_input("Eventuale Divisore Custom (se selezionato sopra)", value=5000)
-
     st.markdown("---")
 
     # 4. Dati Orari e Data
