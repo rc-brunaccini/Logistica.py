@@ -123,12 +123,7 @@ def get_market_intelligence():
         # Ticker per il Brent Crude Oil (Riferimento per carburante avio)
         ticker = "BZ=F" 
         data = yf.download(ticker, period="2d", interval="1d", progress=False)
-        
-        if len(data) >= 2:
-            # Recupero ultimi due prezzi di chiusura
-            current_price = data['Close'].iloc[-1]
-            previous_price = data['Close'].iloc[-2]
-            delta = current_price - previous_price
+      
             
             # Calcolo BAF (Fuel Surcharge) - Logica aziendale simulata
             # Esempio: Se il petrolio è > 80$, BAF è 15%, altrimenti 12%
