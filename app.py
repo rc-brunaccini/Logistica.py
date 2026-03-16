@@ -24,7 +24,7 @@ st.sidebar.subheader("📍 Percorso")
 origin_city = st.sidebar.text_input("Città di Partenza")
 dest_city = st.sidebar.text_input("Città di Destinazione")
 dest_state = st.sidebar.selectbox("Stato di arrivo (per War Risk)", 
-                                 ["Italia", "USA", "Israele", "Ucraina", "Cina", "Altro"])
+                                 ["Ucraina", "Iran","Israele", "Siria", "Yemen", "Iraq", "Libano", "Giordania", "Sudan","altro"])
 
 st.sidebar.markdown("---")
 
@@ -277,7 +277,7 @@ def estimate_final_costs(chargeable_weight, baf_pct, country):
     handling_fix = 50.0      
     docs_fix = 35.0          
     
-    war_risk_per_kg = 0.50 if country in ["Israele", "Ucraina"] else 0.05
+    war_risk_per_kg = 0.50 if country in ["Ucraina", "Iran","Israele", "Siria", "Yemen", "Iraq", "Libano", "Giordania", "Sudan"] else 0.05
     
     # CALCOLO NOLO BASE (con controllo del minimo)
     nolo_calcolato = chargeable_weight * base_rate_per_kg
