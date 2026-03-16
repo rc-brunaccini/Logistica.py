@@ -342,47 +342,43 @@ with col_res1:
     st.info(f"**Peso Tassabile (IATA): {chargeable_w:.2f} kg**")
 
 with col_res2:
-    st.subheader("📈 Analisi Margine e Profitto")
+    st.subheader("📉 Incidenza Costi per kg Reale")
     
-    fig_be = go.Figure()
-
-    # Area del Profitto (Verde) e Perdita (Rossa)
-    fig_be.add_trace(go.Scatter(
-        x=tariffe_test, y=ricavi,
-        line=dict(color='#2ecc71', width=4),
-        name='Ricavo Totale',
-        fill='tonexty', # Questo colora l'area tra le linee
-        fillcolor='rgba(46, 204, 113, 0.2)' 
+    # 1. Prepariamo i dati: calcoliamo quanto ogni voce pesa su 1 kg di merce fisica
+    df_incidenza = df_costs.copy()
+    # Usiamo real_weight per l'analisi di efficienza (costo effettivo per kg spedito)
+    df_incidenza["$/kg"] = df_incidenza["Importo ($)"] / real_weight if real_weight > 0 else 0
+    
+    # 2. Creazione del grafico a barre orizzontali
+    fig_inc = go.Figure(go.Bar(
+        x=df_incidenza["$/kg"],
+        y=df_incidenza["Voce di Costo"],
+        orientation='h',
+        marker=dict(
+            color='#3498db',
+            line=dict(color='#2980b9', width=1)
+        ),
+        text=[f"${x:.2f}/kg" for x in df_incidenza["$/kg"]],
+        textposition='outside',
+        cliponaxis=False # Evita che il testo venga tagliato
     ))
-
-    fig_be.add_trace(go.Scatter(
-        x=tariffe_test, y=costi_fissi,
-        line=dict(color='#e74c3c', width=3, dash='dot'),
-        name='Costo Totale (Break-even)',
-        fill='toself',
-        fillcolor='rgba(231, 76, 60, 0.1)'
-    ))
-
-    # Punto di Break-even evidenziato
-    fig_be.add_trace(go.Scatter(
-        x=[prezzo_break_even], y=[total_est],
-        mode='markers+text',
-        marker=dict(color='black', size=12, symbol='x'),
-        text=["BREAK-EVEN"],
-        textposition="top center",
-        name='Punto di Pareggio'
-    ))
-
-    fig_be.update_layout(
-        hovermode="x unified",
-        margin=dict(l=10, r=10, t=50, b=10),
+    
+    # 3. Styling del layout
+    fig_inc.update_layout(
         height=400,
-        plot_bgcolor='white',
-        xaxis=dict(title="Prezzo di vendita ($/kg)", showgrid=True, gridcolor='lightgray'),
-        yaxis=dict(title="Valore Totale ($)", showgrid=True, gridcolor='lightgray'),
-        legend=dict(orientation="h", y=1.1)
+        margin=dict(l=10, r=40, t=20, b=10), # Margine destro ampio per le etichette
+        xaxis_title="Impatto economico per kg ($)",
+        yaxis=dict(autorange="reversed"), # Nolo in alto, Documenti in basso
+        plot_bgcolor='rgba(0,0,0,0)',
+        xaxis=dict(
+            showgrid=True,
+            gridcolor='lightgray',
+            zeroline=True,
+            zerolinecolor='black'
+        )
     )
-    st.plotly_chart(fig_be, use_container_width=True)
+    
+    st.plotly_chart(fig_inc, use_container_width=True)
 
 with col_res3:
     st.subheader("📊 Analisi Struttura Costi")
