@@ -171,7 +171,7 @@ st.divider()
 # %%
 @st.cache_data(show_spinner="Calcolo coordinate in corso...")
 def get_precise_route_data(origin_city, dest_city):
-    geolocator = Nominatim(user_agent="logistics_app_v1", timeout=10) # User agent necessario per policy Nominatim
+    geolocator = Nominatim(user_agent="logistics_app_v2", timeout=10) # User agent necessario per policy Nominatim
     
     try:
         # Recupero coordinate città di partenza
