@@ -577,33 +577,51 @@ def generate_pdf(df_costs, total_est, origin, dest, weight_data, sla_data, baf_v
     # Output
     pdf_out = pdf.output(dest='S')
     return bytes(pdf_out, 'latin-1') if isinstance(pdf_out, str) else bytes(pdf_out)
-# --- TASTO DI DOWNLOAD ---
-st.divider()
-st.subheader("🖨️ Esporta Documentazione")
 
-# Generazione e bottone
+
+# --- TASTO DI DOWNLOAD AGGIORNATO ---
+st.divider()
+st.subheader("🖨️ Esporta Documentazione Professionale")
+
 try:
-    # Preparazione dati last-minute
-    w_info = {"real": float(real_weight), "vol": float(vol_weight), "chargeable": float(chargeable_w)}
+    # 1. Prepariamo i dati necessari (assicurandoci che siano formattati correttamente)
+    w_info = {
+        "real": float(real_weight), 
+        "vol": float(vol_weight), 
+        "chargeable": float(chargeable_w)
+    }
+    
     s_info = {
         "cutoff": limite_consegna.strftime('%d/%m/%Y %H:%M'),
         "pickup": pronto_ritiro.strftime('%d/%m/%Y %H:%M')
     }
 
-    pdf_data = generate_pdf(df_costs, total_est, origin_city, dest_city, w_info, s_info)
+    # 2. CHIAMATA ALLA FUNZIONE: Qui passiamo tutti gli argomenti richiesti
+    # Abbiamo aggiunto baf_value e dest_state alla fine
+    pdf_data = generate_pdf(
+        df_costs, 
+        total_est, 
+        origin_city, 
+        dest_city, 
+        w_info, 
+        s_info, 
+        baf_value,   # <-- Argomento mancante 1
+        dest_state   # <-- Argomento mancante 2
+    )
     
+    # 3. Bottone Streamlit
     st.download_button(
-        label="📥 Scarica Preventivo PDF",
+        label="🚀 Scarica Preventivo PDF Premium",
         data=pdf_data,
-        file_name=f"Preventivo_{dest_city.replace(' ', '_')}.pdf",
+        file_name=f"Quote_{dest_city.replace(' ', '_')}_{datetime.now().strftime('%Y%m%d')}.pdf",
         mime="application/pdf",
         use_container_width=True
     )
-except Exception as e:
-    st.error(f"Errore: {e}")
 
-import plotly.graph_objects as go
-import numpy as np
+except Exception as e:
+    # Se qualcosa va storto (es. città non inserite), mostriamo un avviso pulito
+    st.warning("Completa l'inserimento dei dati per generare il PDF professionale.")
+    # Debug opzionale: st.error(f"Dettaglio errore: {e}")
 
 
 
