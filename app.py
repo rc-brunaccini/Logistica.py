@@ -113,7 +113,7 @@ with col_main1:
 
 with col_main2:
     # Esempio di calcolo logistico (Peso Volumetrico standard 1:6000)
-    volumetric_weight = (length * width * height) / 6000 * num_pieces
+    volumetric_weight = (length * width * height) / dim_divisor * num_pieces
     st.success(f"**Peso Reale Totale:** {real_weight} kg")
     st.write(f"**Pezzi:** {num_pieces}")
     st.write(f"**Peso Volumetrico Stimato:** {volumetric_weight:.2} kg")
@@ -284,7 +284,7 @@ def estimate_final_costs(chargeable_weight, baf_pct, country):
     security_per_kg = 0.15 
     handling_fix = 50.0      
     docs_fix = 35.0          
-    
+    max(chargeable_w * war_rate, 15.0)
     war_risk_per_kg = 0.50 if country in ["Ucraina", "Iran","Israele", "Siria", "Yemen", "Iraq", "Libano", "Giordania", "Sudan"] else 0.05
     
     # CALCOLO NOLO BASE (con controllo del minimo)
