@@ -12,48 +12,27 @@ from fpdf import FPDF
 import io
 
 # %%
+# sidebar per gli input
+st.set_page_config(page_title="Gestione Spedizioni", layout="wide")
 
-submit_button = st.form_submit_button(label="🚀 ELABORA QUOTAZIONE")
-
-if not submit_button:
-    # --- SCHERMATA DI BENVENUTO (A DESTRA) ---
-    st.title("👋 Benvenuto nel Logistics BI Tool")
-    st.info("Configura i parametri della spedizione nella barra a sinistra e clicca su **ELABORA QUOTAZIONE** per visualizzare l'analisi completa.")
-    
-    # Puoi aggiungere un'immagine o dei placeholder estetici
-    st.markdown("""
-    ### Cosa troverai in questo report:
-    * 🌍 **Mappa Geodetica:** Visualizzazione 3D della rotta.
-    * 💸 **Analisi Costi:** Breakdown dettagliato del nolo e delle surcharges.
-    * 📊 **Business Intelligence:** Impatto economico per kg e Waterfall chart.
-    * 🕒 **SLA Operativi:** Calcolo dei cut-off aeroportuali.
-    """)
-    
-    # Questo ferma l'esecuzione del resto del codice (i calcoli) finché non premi il tasto
-    st.stop()
+st.title("✈️ Calcolo e Gestione Spedizioni")
 
 # --- SIDEBAR: INPUT DATI ---
 st.sidebar.header("Configurazione Spedizione")
 
-# Inizializzazione session_state per date (mantenuta come nel tuo originale)
-if 'initialized' not in st.session_state:
-    st.session_state.initialized = True
-    st.session_state.dep_dt = datetime.now()
-    st.session_state.arr_dt = datetime.now() + timedelta(hours=12)
-
-# UNICO FORM PER TUTTI I DATI
-with st.sidebar.form(key="global_shipping_form"):
-    
-    # 1. Dati Spedizione
+# Dati Spedizione
+with st.sidebar.form(key="città"):
     st.subheader("📍 Percorso")
     origin_city = st.text_input("Città di Partenza")
     dest_city = st.text_input("Città di Destinazione")
     dest_state = st.selectbox("Stato di arrivo (per War Risk)", 
                                  ["Ucraina", "Iran","Israele", "Siria", "Yemen", "Iraq", "Libano", "Giordania", "Sudan","altro"])
     
-    st.markdown("---")
+    submit_button = st.form_submit_button(label="Calcola Rotta")
+st.sidebar.markdown("---")
 
-    # 2. Dati Merce
+# Dati Merce
+with st.sidebar.form(key="merce"):
     st.subheader("📦 Dati Merce")
     real_weight = st.number_input("Peso Reale (kg)", min_value=0.0, step=0.1)
 
@@ -66,33 +45,57 @@ with st.sidebar.form(key="global_shipping_form"):
         height = st.number_input("H (cm)", min_value=0)
 
     num_pieces = st.number_input("Numero Pezzi", min_value=1, step=1)
+    submit_button = st.form_submit_button(label="Calcola Dati Merce")
 
-    st.markdown("---")
+# decidi la IATA applicata 
 
-    # 3. Parametri Tariffari (Spostati dentro il form)
-    st.subheader("⚙️ Parametri Tariffari")
-    service_type = st.selectbox(
-        "Tipo di Servizio",
-        ["IATA Standard (1:5000)", "Express Courier (1:6000)"]
-    )
-    st.markdown("---")
+st.sidebar.subheader("⚙️ Parametri Tariffari")
+service_type = st.sidebar.selectbox(
+    "Tipo di Servizio",
+    ["IATA Standard (1:5000)", "Express Courier (1:6000)"]
+)
 
-    # 4. Dati Orari e Data
-    st.subheader("🕒 Operazioni Volo")
-    departure_date = st.date_input("Data di Decollo", value=st.session_state.dep_dt.date())
-    departure_time = st.time_input("Ora di Decollo", value=st.session_state.dep_dt.time())
-    
-    st.markdown("---")
-    
-    arrival_date = st.date_input("Data di Atterraggio", value=st.session_state.arr_dt.date())
-    arrival_time = st.time_input("Ora di Atterraggio", value=st.session_state.arr_dt.time())
-
-# --- LOGICA FUORI DAL FORM ---
-# Impostazione dinamica del divisore basata sulla scelta nel form
+# Impostazione dinamica del divisore
 if service_type == "IATA Standard (1:5000)":
     dim_divisor = 5000
 elif service_type == "Express Courier (1:6000)":
     dim_divisor = 6000
+
+st.sidebar.markdown("---")
+
+# Dati Orari e Data
+
+# Questo blocco serve a definire i valori iniziali che NON cambieranno più da soli
+if 'initialized' not in st.session_state:
+    st.session_state.initialized = True
+    st.session_state.dep_dt = datetime.now()
+    st.session_state.arr_dt = datetime.now() + timedelta(hours=12)
+
+with st.sidebar.form(key="Date"):
+    st.subheader("🕒 Operazioni Volo")
+
+    departure_date = st.date_input(
+    "Data di Decollo", 
+    value=st.session_state.dep_dt.date()
+)
+    departure_time = st.time_input(
+    "Ora di Decollo", 
+    value=st.session_state.dep_dt.time()
+)
+
+    st.sidebar.markdown("---")
+    
+
+# ATTERRAGGIO
+    arrival_date = st.date_input(
+    "Data di Atterraggio", 
+    value=st.session_state.arr_dt.date()
+)
+    arrival_time = st.time_input(
+    "Ora di Atterraggio", 
+    value=st.session_state.arr_dt.time()
+)
+    submit_button = st.form_submit_button(label="Calcola Data e Ora")
 
 
 # --- CORPO PRINCIPALE: RIEPILOGO ---
