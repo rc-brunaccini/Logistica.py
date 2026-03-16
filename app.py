@@ -417,14 +417,6 @@ with col_res3:
 
 st.divider()
 
-# Banner Finale "Executive"
-st.success(f"""
-### **SINTESI FINANZIARIA**
-* 💰 **Costo di Produzione:** $ {total_est:,.2f}
-* 🎯 **Prezzo di Pareggio (Break-even):** $ {prezzo_break_even:.2f} / kg
-* 💡 *Ogni dollaro incassato sopra questa soglia è profitto netto.*
-""")
-
 # Tabella dettagliata - Uso st.dataframe per una visualizzazione più moderna rispetto a st.table
 st.subheader("📋 Breakdown Preventivo")
 st.dataframe(df_costs, use_container_width=True, hide_index=True)
