@@ -12,12 +12,45 @@ from fpdf import FPDF
 import io
 
 
-# --- LOGICA DI BENVENUTO ---
-# Inizializziamo una variabile nello stato per capire se l'utente ha già cliccato
+# --- 1. GESTIONE STATO (Per far sparire il benvenuto al click) ---
 if 'form_submitted' not in st.session_state:
     st.session_state.form_submitted = False
 
-if not st.session_state.form_submitted:
+# --- 2. SIDEBAR UNIFICATA (Sempre visibile) ---
+st.sidebar.header("✈️ Configurazione Spedizione")
+
+with st.sidebar.form(key="global_shipping_form"):
+    st.subheader("📍 Tratta")
+    origin_city = st.sidebar.text_input("Città di Partenza", placeholder="es. Milano")
+    dest_city = st.sidebar.text_input("Città di Destinazione", placeholder="es. Tokyo")
+    dest_state = st.sidebar.selectbox("Stato di arrivo (per War Risk)", 
+                              ["altro", "Ucraina", "Iran", "Israele", "Siria", "Yemen", "Iraq", "Libano", "Giordania", "Sudan"])
+    
+    st.divider()
+    st.subheader("📦 Dati Merce")
+    real_weight = st.sidebar.number_input("Peso Reale (kg)", min_value=0.0, step=0.1)
+    c1, c2, c3 = st.sidebar.columns(3)
+    length = c1.number_input("L (cm)", min_value=0)
+    width = c2.number_input("W (cm)", min_value=0)
+    height = c3.number_input("H (cm)", min_value=0)
+    num_pieces = st.sidebar.number_input("Pezzi", min_value=1, step=1)
+    
+    service_type = st.sidebar.selectbox("Tipo di Servizio", ["IATA Standard (1:5000)", "Express Courier (1:6000)", "Custom"])
+    custom_divisor = st.sidebar.number_input("Divisore Custom (se selezionato)", value=5000)
+    
+    st.divider()
+    st.subheader("🕒 Operazioni Volo")
+    departure_date = st.sidebar.date_input("Data di Decollo", value=datetime.now())
+    departure_time = st.sidebar.time_input("Ora di Decollo", value=datetime.now().time())
+    arrival_date = st.sidebar.date_input("Data di Atterraggio", value=(datetime.now() + timedelta(hours=12)))
+    arrival_time = st.sidebar.time_input("Ora di Atterraggio", value=datetime.now().time())
+
+    submit_button = st.form_submit_button(label="🚀 ELABORA QUOTAZIONE")
+
+# --- 3. LOGICA DEL VELO (Visualizzazione condizionale) ---
+
+if not submit_button and not st.session_state.form_submitted:
+    # --- QUESTO È IL BENVENUTO ---
     st.markdown("""
     ## 🌍 Logistics Business Intelligence Tool
     Benvenuto nel sistema avanzato di quotazione e analisi voli. 
@@ -34,58 +67,12 @@ if not st.session_state.form_submitted:
     """)
     st.info("💡 Suggerimento: Assicurati di inserire correttamente le dimensioni per il calcolo del peso volumetrico IATA.")
 
+else:
+    # --- QUESTO È IL "VELO" CHE SI APRE ---
+    # Da qui in poi incolla TUTTO il resto del tuo codice (Calcoli, Mappe, Grafici e PDF)
+    # IMPORTANTE: Tutto il codice che incolli qui sotto deve essere INDENTATO di 4 spazi!
+    st.session_state.form_submitted = True 
 
-# --- SIDEBAR UNIFICATA ---
-st.sidebar.header("✈️ Configurazione Spedizione")
-
-with st.sidebar.form(key="global_shipping_form"):
-    # 📍 Sezione Percorso
-    st.subheader("📍 Tratta")
-    origin_city = st.text_input("Città di Partenza", placeholder="es. Milano")
-    dest_city = st.text_input("Città di Destinazione", placeholder="es. Tokyo")
-    dest_state = st.selectbox("Stato di arrivo (per War Risk)", 
-                              ["altro", "Ucraina", "Iran", "Israele", "Siria", "Yemen", "Iraq", "Libano", "Giordania", "Sudan"])
-    
-    st.divider()
-
-    # 📦 Sezione Merce
-    st.subheader("📦 Dati Merce")
-    real_weight = st.number_input("Peso Reale (kg)", min_value=0.0, step=0.1)
-    c1, c2, c3 = st.columns(3)
-    length = c1.number_input("L (cm)", min_value=0)
-    width = c2.number_input("W (cm)", min_value=0)
-    height = c3.number_input("H (cm)", min_value=0)
-    num_pieces = st.number_input("Pezzi", min_value=1, step=1)
-    
-    # ⚙️ Parametri Tariffari (Spostati dentro il form)
-    service_type = st.selectbox("Tipo di Servizio", ["IATA Standard (1:5000)", "Express Courier (1:6000)", "Custom"])
-    custom_divisor = st.number_input("Divisore Custom (se selezionato)", value=5000)
-    
-    st.divider()
-
-    # 🕒 Operazioni Volo
-    st.subheader("🕒 Operazioni Volo")
-    departure_date = st.date_input("Data di Decollo", value=datetime.now())
-    departure_time = st.time_input("Ora di Decollo", value=datetime.now().time())
-    
-    arrival_date = st.date_input("Data di Atterraggio", value=(datetime.now() + timedelta(hours=12)))
-    arrival_time = st.time_input("Ora di Atterraggio", value=datetime.now().time())
-
-    # --- L'UNICO BOTTONE ---
-    submit_button = st.form_submit_button(label="🚀 ELABORA QUOTAZIONE")
-
-if submit_button:
-    st.session_state.form_submitted = True
-    # Da qui in poi scatta tutta la tua logica di calcolo e visualizzazione
-
-# PARACADUTE
-
-# Se queste variabili non esistono ancora, le creiamo "vuote"
-if 'length' not in locals(): length = 0
-if 'width' not in locals(): width = 0
-if 'height' not in locals(): height = 0
-if 'num_pieces' not in locals(): num_pieces = 0
-if 'dim_divisor' not in locals(): dim_divisor = 5000 # Valore standard IATA
 
 # --- CORPO PRINCIPALE: RIEPILOGO ---
 st.header("Riepilogo Dati Inseriti")
