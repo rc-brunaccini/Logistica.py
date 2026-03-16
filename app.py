@@ -87,7 +87,6 @@ else:
             # Esempio di calcolo logistico (Peso Volumetrico standard 1:6000)
         st.success(f"**Peso Reale Totale:** {real_weight} kg")
         st.write(f"**Pezzi:** {num_pieces}")
-        st.write(f"**Peso Volumetrico Stimato:** {volumetric_weight:.2} kg")
 
 # Bottone per elaborazione (es. War Risk)
 if st.button("Calcola War Risk e Quotazione"):
