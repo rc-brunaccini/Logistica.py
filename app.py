@@ -503,76 +503,97 @@ except Exception as e:
 import plotly.graph_objects as go
 import numpy as np
 
-# --- VISUALIZZAZIONE MAIN PAGE: ANALISI PRO ---
-st.header("💰 Analisi Costi Avanzata")
+# --- STILIZZAZIONE E LAYOUT ---
+st.header("💰 Business Intelligence Tool")
 
-col_res1, col_res2 = st.columns(2)
+# Prepariamo i dati per il Break-even
+prezzo_break_even = total_est / real_weight if real_weight > 0 else 0
+# Creiamo un range di prezzi attorno al break-even
+tariffe_test = np.linspace(prezzo_break_even * 0.5, prezzo_break_even * 2, 50)
+ricavi = tariffe_test * real_weight
+costi_fissi = np.full(len(tariffe_test), total_est)
+
+col_res1, col_res2 = st.columns([1.2, 1]) # Bilanciamo le larghezze
 
 with col_res1:
-    st.subheader("⚖️ Analisi Peso")
-    st.write(f"Peso Reale: **{real_weight:.2f} kg**")
-    st.write(f"Peso Volumetrico: **{vol_weight:.2f} kg**")
-    st.info(f"**Peso Tassabile (IATA): {chargeable_w:.2f} kg**")
-    
-    # --- AGGIUNTA: ANALISI BREAK-EVEN ---
-    st.subheader("📈 Break-even Analysis")
-    # Simuliamo tariffe di vendita al kg per vedere dove copriamo i costi
-    prezzo_min_vendita = total_est / real_weight if real_weight > 0 else 0
-    tariffe_test = np.linspace(prezzo_min_vendita * 0.5, prezzo_min_vendita * 2, 20)
-    ricavi = tariffe_test * real_weight
+    st.subheader("📈 Analisi Margine e Profitto")
     
     fig_be = go.Figure()
-    # Linea del ricavo
-    fig_be.add_trace(go.Scatter(x=tariffe_test, y=ricavi, name='Ricavo (Vendita)', line=dict(color='#00CC96', width=3)))
-    # Linea del costo totale (costante rispetto al prezzo di vendita)
-    fig_be.add_trace(go.Scatter(x=tariffe_test, y=[total_est]*20, name='Costo Totale Spedizione', line=dict(color='#EF553B', dash='dash')))
-    
+
+    # Area del Profitto (Verde) e Perdita (Rossa)
+    fig_be.add_trace(go.Scatter(
+        x=tariffe_test, y=ricavi,
+        line=dict(color='#2ecc71', width=4),
+        name='Ricavo Totale',
+        fill='tonexty', # Questo colora l'area tra le linee
+        fillcolor='rgba(46, 204, 113, 0.2)' 
+    ))
+
+    fig_be.add_trace(go.Scatter(
+        x=tariffe_test, y=costi_fissi,
+        line=dict(color='#e74c3c', width=3, dash='dot'),
+        name='Costo Totale (Break-even)',
+        fill='toself',
+        fillcolor='rgba(231, 76, 60, 0.1)'
+    ))
+
+    # Punto di Break-even evidenziato
+    fig_be.add_trace(go.Scatter(
+        x=[prezzo_break_even], y=[total_est],
+        mode='markers+text',
+        marker=dict(color='black', size=12, symbol='x'),
+        text=["BREAK-EVEN"],
+        textposition="top center",
+        name='Punto di Pareggio'
+    ))
+
     fig_be.update_layout(
-        height=300, margin=dict(l=0, r=0, t=30, b=0),
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-        xaxis_title="Prezzo di vendita al kg ($)",
-        yaxis_title="Totale ($)"
+        hovermode="x unified",
+        margin=dict(l=10, r=10, t=50, b=10),
+        height=400,
+        plot_bgcolor='white',
+        xaxis=dict(title="Prezzo di vendita ($/kg)", showgrid=True, gridcolor='lightgray'),
+        yaxis=dict(title="Valore Totale ($)", showgrid=True, gridcolor='lightgray'),
+        legend=dict(orientation="h", y=1.1)
     )
     st.plotly_chart(fig_be, use_container_width=True)
 
 with col_res2:
-    st.subheader("📊 Waterfall Cost Breakdown")
+    st.subheader("📊 Analisi Struttura Costi")
     
-    # Preparazione dati per il Waterfall usando il tuo df_costs
     nomi_voci = list(df_costs["Voce di Costo"])
     valori_voci = list(df_costs["Importo ($)"])
     
     fig_wf = go.Figure(go.Waterfall(
-        name = "Costi", 
         orientation = "v",
         measure = ["relative"] * len(valori_voci) + ["total"],
         x = nomi_voci + ["TOTALE"],
-        textposition = "outside",
+        y = valori_voci + [0],
         text = [f"${x}" for x in valori_voci] + [f"${total_est:.2f}"],
-        y = valori_voci + [0], 
-        connector = {"line":{"color":"#636363"}},
-        increasing = {"marker":{"color": "#EF553B"}}, # Rosso per i costi
-        totals = {"marker":{"color": "#19d3f3"}}      # Blu/Azzurro per il totale finale
+        textposition = "outside",
+        # Colori moderni (Azzurro per incrementi, Blu Scuro per totale)
+        increasing = {"marker":{"color": "#3498db"}},
+        totals = {"marker":{"color": "#2c3e50"}},
+        connector = {"line":{"color":"#bdc3c7", "width":2}},
     ))
 
     fig_wf.update_layout(
-        height=450,
-        margin=dict(l=20, r=20, t=30, b=20),
-        showlegend = False
+        margin=dict(l=10, r=10, t=50, b=10),
+        height=400,
+        plot_bgcolor='white',
+        paper_bgcolor='rgba(0,0,0,0)',
+        xaxis=dict(tickangle=-45) # Incliniamo i nomi per non sovrapporli
     )
     st.plotly_chart(fig_wf, use_container_width=True)
 
-# Tabella dettagliata rimane sotto per precisione
-st.subheader("📋 Breakdown Preventivo")
-st.dataframe(df_costs, use_container_width=True, hide_index=True)
+st.divider()
 
-# Banner Finale migliorato
-costo_al_kg = total_est / real_weight if real_weight > 0 else 0
+# Banner Finale "Executive"
 st.success(f"""
-### **TOTALE STIMATO SPEDIZIONE: $ {total_est:,.2f}**
----
-* **Punto di Pareggio:** Devi vendere a più di **$ {costo_al_kg:.2f}/kg** per generare profitto.
-* **Peso Tassabile applicato:** {chargeable_w:.2f} kg
+### **SINTESI FINANZIARIA**
+* 💰 **Costo di Produzione:** $ {total_est:,.2f}
+* 🎯 **Prezzo di Pareggio (Break-even):** $ {prezzo_break_even:.2f} / kg
+* 💡 *Ogni dollaro incassato sopra questa soglia è profitto netto.*
 """)
 
 
