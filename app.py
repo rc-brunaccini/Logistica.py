@@ -513,9 +513,16 @@ tariffe_test = np.linspace(prezzo_break_even * 0.5, prezzo_break_even * 2, 50)
 ricavi = tariffe_test * real_weight
 costi_fissi = np.full(len(tariffe_test), total_est)
 
-col_res1, col_res2 = st.columns([1.2, 1]) # Bilanciamo le larghezze
+col_res1, col_res2, col_res3 = st.columns([0.6, 1.2,1]) # Bilanciamo le larghezze
 
 with col_res1:
+    st.subheader("⚖️ Analisi Peso")
+    st.write(f"Peso Reale: **{real_weight:.2f} kg**")
+    st.write(f"Peso Volumetrico: **{vol_weight:.2f} kg**")
+    # Messaggio info che chiarisce l'arrotondamento
+    st.info(f"**Peso Tassabile (IATA): {chargeable_w:.2f} kg**")
+
+with col_res2:
     st.subheader("📈 Analisi Margine e Profitto")
     
     fig_be = go.Figure()
@@ -558,7 +565,7 @@ with col_res1:
     )
     st.plotly_chart(fig_be, use_container_width=True)
 
-with col_res2:
+with col_res3:
     st.subheader("📊 Analisi Struttura Costi")
     
     nomi_voci = list(df_costs["Voce di Costo"])
