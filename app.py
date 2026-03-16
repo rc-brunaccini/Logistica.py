@@ -20,10 +20,11 @@ st.title("✈️ Calcolo e Gestione Spedizioni")
 st.sidebar.header("Configurazione Spedizione")
 
 # Dati Spedizione
-st.sidebar.subheader("📍 Percorso")
-origin_city = st.sidebar.text_input("Città di Partenza")
-dest_city = st.sidebar.text_input("Città di Destinazione")
-dest_state = st.sidebar.selectbox("Stato di arrivo (per War Risk)", 
+with st.sidebar.form(key="logistics_form"):
+    st.subheader("📍 Percorso")
+    origin_city = st.sidebar.text_input("Città di Partenza")
+    dest_city = st.sidebar.text_input("Città di Destinazione")
+    dest_state = st.sidebar.selectbox("Stato di arrivo (per War Risk)", 
                                  ["Ucraina", "Iran","Israele", "Siria", "Yemen", "Iraq", "Libano", "Giordania", "Sudan","altro"])
 
 st.sidebar.markdown("---")
