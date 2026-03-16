@@ -367,7 +367,7 @@ st.header("🕒 Pianificazione Logistica Integrata (SLA)")
 # 1. Definizione dinamica dei tempi in base all'importanza dell'aeroporto
 # Hub Grandi: 12h cutoff / 18h svincolo
 # Aeroporti Standard: 6h cutoff / 10h svincolo
-HUBS_GRANDI = ["Milano", "Roma", "New York", "London", "Frankfurt", "Paris", "Shanghai", "Tokyo"]
+HUBS_GRANDI = ["Milano", "Roma", "New York", "Londra", "Francoforte", "Parigi", "Shanghai", "Tokyo"]
 
 def get_sla_params(city_name):
     if any(hub.lower() in city_name.lower() for hub in HUBS_GRANDI):
