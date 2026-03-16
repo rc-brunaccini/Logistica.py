@@ -85,7 +85,6 @@ else:
 
     with col_main2:
             # Esempio di calcolo logistico (Peso Volumetrico standard 1:6000)
-        volumetric_weight = (length * width * height) / dim_divisor * num_pieces
         st.success(f"**Peso Reale Totale:** {real_weight} kg")
         st.write(f"**Pezzi:** {num_pieces}")
         st.write(f"**Peso Volumetrico Stimato:** {volumetric_weight:.2} kg")
